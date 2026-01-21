@@ -1,7 +1,7 @@
 UPSC_SYLLABUS = {
-    "Polity": ["constitution", "parliament", "supreme court", "governor", "bill"],
-    "Economy": ["GDP", "RBI", "budget", "inflation", "fiscal deficit"],
-    "Environment": ["climate change", "biodiversity", "wildlife", "COP"],
-    "International Relations": ["UN", "treaty", "bilateral", "G20"],
-    "Science & Tech": ["ISRO", "AI", "biotech", "quantum"]
+    "POLITY": ["supreme court", "constitution", "eci", "election", "parliament", "rights", "governance", "federalism"],
+    "INTERNATIONAL RELATIONS": ["india-us", "china", "uae", "gulf", "iran", "pakistan", "foreign policy", "trade deal", "defence", "sanctions"],
+    "ECONOMY": ["economy", "gdp", "fdi", "trade", "infrastructure", "supply chain", "exports", "imports"],
+    "SECURITY": ["terrorism", "military", "border", "insurgency", "nuclear", "defence"],
+    "SCIENCE & TECH": ["ai", "semiconductor", "space", "ev", "electric vehicle", "renewable", "rare earth"]
 }

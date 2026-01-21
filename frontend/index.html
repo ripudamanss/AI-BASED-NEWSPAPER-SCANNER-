@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>AI UPSC Newspaper Scanner</title>
     <style>
@@ -48,51 +49,63 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="card">
-    <h2>📰 AI UPSC Newspaper Scanner</h2>
+    <div class="card">
+        <h2>📰 AI UPSC Newspaper Scanner</h2>
 
-    <input type="file" id="fileInput" accept=".pdf"/>
-    <button onclick="upload()">Scan Newspaper</button>
+        <input type="file" id="fileInput" accept=".pdf" />
+        <button onclick="upload()">Scan Newspaper</button>
 
-    <div id="results"></div>
-</div>
+        <div id="results"></div>
+    </div>
 
-<script>
-function upload() {
-    const file = document.getElementById("fileInput").files[0];
-    if (!file) {
-        alert("Upload a PDF first!");
-        return;
-    }
+    <script>
+        function upload() {
+            const file = document.getElementById("fileInput").files[0];
+            if (!file) {
+                alert("Upload a PDF first!");
+                return;
+            }
 
-    const formData = new FormData();
-    formData.append("file", file);
+            const formData = new FormData();
+            formData.append("file", file);
 
-    fetch("http://127.0.0.1:5000/scan", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        const results = document.getElementById("results");
-        results.innerHTML = "";
+            fetch("http://127.0.0.1:5000/scan", {
+                method: "POST",
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const results = document.getElementById("results");
+                    results.innerHTML = "";
 
-        if (data.relevant_news.length === 0) {
-            results.innerHTML = "❌ No UPSC relevant news found.";
-            return;
+                    if (data.relevant_news.length === 0) {
+                        results.innerHTML = "❌ No UPSC relevant news found.";
+                        return;
+                    }
+
+                    data.relevant_news.forEach(item => {
+                        const div = document.createElement("div");
+                        div.style.marginBottom = "15px";
+
+                        const tag = document.createElement("strong");
+                        tag.textContent = "[" + item.tags.join(" | ") + "]";
+                        tag.style.color = "cyan";
+
+                        const p = document.createElement("p");
+                        p.textContent = item.text;
+
+                        div.appendChild(tag);
+                        div.appendChild(p);
+                        results.appendChild(div);
+                    });
+                })
+                .catch(err => alert("Error connecting to server"));
         }
-
-        data.relevant_news.forEach(article => {
-            const p = document.createElement("p");
-            p.textContent = "• " + article;
-            results.appendChild(p);
-        });
-    })
-    .catch(err => alert("Error connecting to server"));
-}
-</script>
+    </script>
 
 </body>
+
 </html>

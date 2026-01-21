@@ -1,15 +1,27 @@
-from flask import send_from_directory
-from flask import Flask, jsonify, request
-from ai.filter import is_relevant 
-from ocr.extract import extract_from_url, extract_from_image, extract_text_from_pdf 
+import os
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
+from ai.chunker import split_articles
+from ai.filter import classify
+from ocr.extract import extract_text_from_pdf
+
+# -------------------
+# App Setup
+# -------------------
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/', methods=['GET'])
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(BASE_DIR, "..", "frontend")
+
+# -------------------
+# Routes
+# -------------------
+
+@app.route("/", methods=["GET"])
 def home():
-    return send_from_directory("../frontend", "index.html")
+    return send_from_directory(FRONTEND_DIR, "index.html")
 
 
 @app.route("/scan", methods=["GET", "POST"])
@@ -17,29 +29,32 @@ def scan():
     if request.method == "GET":
         return "📤 Use POST to upload a PDF file to scan UPSC-relevant news."
 
+    # Save uploaded file
     file = request.files["file"]
-    file.save("temp.pdf")
+    pdf_path = os.path.join(BASE_DIR, "temp.pdf")
+    file.save(pdf_path)
 
-    text = extract_text_from_pdf("temp.pdf")
-    articles = text.split("\n\n")
+    # Extract text
+    text = extract_text_from_pdf(pdf_path)
 
-    relevant = [a for a in articles if is_relevant(a)]
+    # Split into articles/chunks
+    articles = split_articles(text)
+
+    # Classify
+    relevant = []
+    for a in articles:
+        tags = classify(a)
+        if tags:
+            relevant.append({
+                "text": a[:1000],  # preview only
+                "tags": tags
+            })
 
     return jsonify({"relevant_news": relevant})
-# @app.route('/', methods=['GET', 'POST'])
-# def home():
-#     return "Welcome to the AI-Based Newspaper Scanner API"
 
-# @app.route('/scan', methods=['POST'])
-# def scan():
-#     if request.method == "GET":
-#         return "📤 Use POST to upload a PDF file to scan UPSC-relevant news."
-    
-#     file = request.files['file']
-#     file.save('temp.pdf')
 
-#     text = extract_text_from_pdf('temp.pdf')
-#     articles = text.split('\n\n')
-
-#     relevant = [a for a in articles if is_relevant(a)]
-#     return jsonify({"relevant_news": relevant})
+# -------------------
+# Run
+# -------------------
+if __name__ == "__main__":
+    app.run(debug=True)
